@@ -4,6 +4,8 @@ const app = express()
 
 app.use(express.json())
 
+const user = [{ username: '', avatar: '' }]
+
 const tweets = [
   {
     id: 1,
@@ -37,33 +39,43 @@ const tweets = [
   }
 ]
 
-const user =[{username:'', avatar:''}]
+app.post('/sign-up', (req, res) => {
+const {username, avatar} = req.body
 
-app.post('/sign-up', (req,res)=>{
+if(!username || !avatar){
+  res.status(400).send('Insira todos os campos')
+  return;
+}
 
   const loginUser = {
-  username: req.body.username,
-  avatar: req.body.avatar
+    username,
+    avatar
   }
-  
-   user.push(loginUser)
-   res.send('OK')
-  })
 
-  app.post('/tweets', (req,res)=>{
+  user.push(loginUser)
+  res.sendStatus(201)
+})
 
-    const newTweet = {
-      id: tweets.lenght+1,
-    username: req.body.username,
-    tweet: req.body.tweet
-    }
-    
-     tweets.push(newTweet)
-     res.send('OK')
-    })
+app.post('/tweets', (req, res) => {
+const {username , tweet} = req.body
+
+if(!username || !tweet) {
+res.status(400).send('Insira todos os dados')
+return;
+}
+
+  const newTweet = {
+    id: tweets.lenght + 1,
+    username,
+    tweet
+  }
+
+  tweets.push(newTweet)
+  res.sendStatus(201)
+})
 
 app.get("/tweets", (req, res) => {
-  
+
   const publishedTweets = []
   for (let i = 0; i < 10; i++) {
 
