@@ -1,89 +1,78 @@
-import express from 'express';
+import express from "express";
+import cors from "cors";
 
-const app = express()
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-app.use(express.json())
-
-const user = [{ username: '', avatar: '' }]
-
-const tweets = [
+const user = [
   {
-    id: 1,
     username: 'Morty',
     avatar: 'https://static.wikia.nocookie.net/rickandmorty/images/e/ee/Morty501.png/revision/latest?cb=20210827150137',
-    tweet: 'Hello'
   },
   {
-    id: 2,
     username: 'Rick',
-    avatar: 'https://static.wikia.nocookie.net/rickandmorty/images/e/ee/Morty501.png/revision/latest?cb=20210827150137',
-    tweet: 'Hi'
-  },
-  {
-    id: 3,
-    username: 'Summer',
-    avatar: 'https://static.wikia.nocookie.net/rickandmorty/images/e/ee/Morty501.png/revision/latest?cb=20210827150137',
-    tweet: 'Lalala'
-  },
-  {
-    id: 4,
-    username: 'Jery',
-    avatar: 'https://static.wikia.nocookie.net/rickandmorty/images/e/ee/Morty501.png/revision/latest?cb=20210827150137',
-    tweet: 'Hello'
-  },
-  {
-    id: 5,
-    username: 'Beth',
-    avatar: 'https://static.wikia.nocookie.net/rickandmorty/images/e/ee/Morty501.png/revision/latest?cb=20210827150137',
-    tweet: 'Hello'
+    avatar: 'https://i.pinimg.com/originals/7b/aa/25/7baa252dbdfeed669c152bedd2fa5feb.jpg'
   }
 ]
 
-app.post('/sign-up', (req, res) => {
-const {username, avatar} = req.body
+const tweets = [
+  {
+    username: 'Morty',
+    tweet: 'Hello'
+  },
+  {
+    username: 'Rick',
+    tweet: 'Hi'
+  }
+]
 
-if(!username || !avatar){
-  res.status(400).send('Insira todos os campos')
-  return;
-}
+app.post("/sign-up", (req, res) => {
+  const { username, avatar } = req.body;
 
-  const loginUser = {
-    username,
-    avatar
+  if (!username || !avatar) {
+    res.status(400).send('Todos os campos são obrigatórios!')
+    return;
   }
 
-  user.push(loginUser)
-  res.sendStatus(201)
+  user.push(req.body);
+  res.status(201).send('OK');
 })
 
-app.post('/tweets', (req, res) => {
-const {username , tweet} = req.body
+app.post("/tweets", (req, res) => {
+  const { username, tweet } = req.body
 
-if(!username || !tweet) {
-res.status(400).send('Insira todos os dados')
-return;
-}
-
-  const newTweet = {
-    id: tweets.lenght + 1,
-    username,
-    tweet
+  if (!username || !tweet) {
+    res.status(400).send('Todos os campos são obrigatórios!')
+    return;
   }
 
-  tweets.push(newTweet)
-  res.sendStatus(201)
+  tweets.unshift(req.body)
+  res.status(201).send('OK')
 })
+
+function findAvatar(username) {
+  const foundUser = user.find((obj) => username === obj.username)
+  return foundUser.avatar
+}
 
 app.get("/tweets", (req, res) => {
 
-  const publishedTweets = []
-  for (let i = 0; i < 10; i++) {
+  let publishedTweets = []
 
-    publishedTweets.push(tweets[i])
+  for (let i = 0; i < 10; i++) {
+    if (i < tweets.length) {
+      publishedTweets.push(
+        {
+          username: tweets[i].username,
+          avatar: findAvatar(tweets[i].username),
+          tweet: tweets[i].tweet
+        }
+      )
+    } 
   }
   res.send(publishedTweets);
-});
-
+})
 
 app.listen(5000, () => {
   console.log('Server running in port: 5000');
